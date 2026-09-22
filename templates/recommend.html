@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}BookVerse | AI Book Recommendation Studio{% endblock %}
+
+{% block content %}
+<section class="recommender-panel">
+  <div class="recommender-header">
+    <div class="hero-pill" style="margin-bottom:0.75rem;">
+      <span class="hero-pill-dot"></span>
+      <span>Collaborative Filtering Engine</span>
+    </div>
+    <h1 class="recommender-title">Find Books Similar to Your Favorites</h1>
+    <p class="recommender-subtitle">
+      Enter any book from our trained catalog to calculate cosine similarity vectors across thousands of reader preferences.
+    </p>
+  </div>
+
+  <!-- Search Form -->
+  <form id="recForm" action="{{ url_for('recommend') }}" method="POST" autocomplete="off">
+    <div class="search-form-row">
+      <div class="search-input-container">
+        <span class="rec-search-icon">&#128269;</span>
+        <input 
+          type="text" 
+          name="user_input" 
+          id="recSearchInput" 
+          class="rec-search-input" 
+          placeholder="Type a book title (e.g. 1984, Harry Potter, The Hobbit)..." 
+          value="{{ query_title if query_title else '' }}"
+          required
+        >
+        <!-- Autocomplete Suggestions Dropdown -->
+        <div id="autocompleteDropdown" class="autocomplete-dropdown"></div>
+      </div>
+      <button type="submit" id="recSubmitBtn" class="rec-submit-btn">
+        <span>Discover</span> &rarr;
+      </button>
+    </div>
+  </form>
+
+  <!-- Popular Quick Chips -->
+  <div class="chips-container">
+    <span class="chips-label">Quick Try:</span>
+    <button type="button" class="chip-btn" data-title="1984">1984</button>
+    <button type="button" class="chip-btn" data-title="The Da Vinci Code">The Da Vinci Code</button>
+    <button type="button" class="chip-btn" data-title="Harry Potter and the Chamber of Secrets (Book 2)">Harry Potter</button>
+    <button type="button" class="chip-btn" data-title="The Hobbit : The Enchanting Prelude to The Lord of the Rings">The Hobbit</button>
+    <button type="button" class="chip-btn" data-title="To Kill a Mockingbird">To Kill a Mockingbird</button>
+    <button type="button" class="chip-btn" data-title="The Catcher in the Rye">Catcher in the Rye</button>
+    <button type="button" class="chip-btn" data-title="Animal Farm">Animal Farm</button>
+  </div>
+
+  <!-- Error alert if provided via SSR -->
+  {% if error_message %}
+  <div class="alert-box">
+    <span style="font-size: 1.6rem;">&#9888;</span>
+    <div style="flex:1;">
+      <strong style="font-size:1.05rem; display:block; margin-bottom:0.3rem;">{{ error_message }}</strong>
+      <p style="font-size:0.9rem; color:var(--text-muted);">
+        Our collaborative filtering model requires sufficient user voting density.
+      </p>
+      {% if suggestions %}
+      <div style="margin-top:0.75rem;">
+        <div style="font-size:0.85rem; color:#cbd5e1; margin-bottom:0.4rem; font-weight:600;">Did you mean one of these?</div>
+        <div class="alert-suggestions">
+          {% for s in suggestions %}
+          <button type="button" class="chip-btn" onclick="triggerExplore('{{ s|replace('\'', '\\\'') }}')">{{ s }}</button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Query Book Banner (SSR fallback) -->
+  <div id="queryBanner" {% if not searched_book %}style="display:none;"{% endif %}>
+    {% if searched_book %}
+    <div class="queried-book-banner">
+      <img class="queried-cover" src="{{ searched_book.image }}" onerror="this.onerror=null; this.src='/static/images/book-placeholder.svg';" alt="{{ searched_book.title }}">
+      <div class="queried-details">
+        <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--accent-purple); font-weight:700;">Base Reference Book</div>
+        <h3 class="queried-title">{{ searched_book.title }}</h3>
+        <p class="queried-author">By {{ searched_book.author }}</p>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Skeleton Shimmer Loader -->
+  <div id="skeletonContainer" class="skeleton-container">
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+  </div>
+
+  <!-- Recommendations Container (Dynamic AJAX or SSR) -->
+  <div id="recommendResults" {% if not recommendations %}style="display:none;"{% endif %}>
+    {% if recommendations %}
+    <div class="results-header">
+      <h2 class="results-title">
+        <span>AI Recommendations</span>
+        <span style="font-size:0.8rem; background:rgba(99,102,241,0.2); color:#a5b4fc; padding:2px 8px; border-radius:999px;">{{ recommendations|length }} Matches</span>
+      </h2>
+    </div>
+
+    <div class="books-grid">
+      {% for rec in recommendations %}
+      <article 
+        class="book-card" 
+        data-title="{{ rec.title }}" 
+        data-author="{{ rec.author }}" 
+        data-image="{{ rec.image }}" 
+        data-match="{{ rec.similarity_percent }}% Match"
+        tabindex="0"
+        role="button"
+      >
+        <div class="card-cover-wrapper">
+          <img 
+            class="card-cover-img" 
+            src="{{ rec.image }}" 
+            alt="{{ rec.title }}" 
+            onerror="this.onerror=null; this.src='/static/images/book-placeholder.svg';"
+          >
+          <span class="card-rank-badge">#{{ loop.index }} Rec</span>
+          <span class="card-match-badge">{{ rec.similarity_percent }}% Match</span>
+        </div>
+        <div class="card-body">
+          <div>
+            <h3 class="book-title" title="{{ rec.title }}">{{ rec.title }}</h3>
+            <p class="book-author">By {{ rec.author }}</p>
+          </div>
+          <div class="card-metrics">
+            <span class="metric-rating">&#9733; High Similarity</span>
+            {% if rec.year %}
+            <span class="metric-votes">Year: {{ rec.year }}</span>
+            {% endif %}
+          </div>
+          <button 
+            type="button" 
+            class="card-action-btn" 
+            onclick="event.stopPropagation(); triggerExplore('{{ rec.title|replace('\'', '\\\'') }}');"
+          >
+            <span>Recommend Like This</span> &rarr;
+          </button>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Handle url parameter ?book=... on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const bookParam = urlParams.get('book');
+    if (bookParam) {
+      const searchInput = document.getElementById('recSearchInput');
+      if (searchInput && !searchInput.value) {
+        searchInput.value = bookParam;
+        triggerExplore(bookParam);
+      }
+    }
+  });
+</script>
+{% endblock %}

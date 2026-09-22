@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 240" width="160" height="240">
+  <defs>
+    <linearGradient id="coverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b" />
+      <stop offset="50%" stop-color="#312e81" />
+      <stop offset="100%" stop-color="#4338ca" />
+    </linearGradient>
+    <linearGradient id="spineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+  </defs>
+  <!-- Book Cover Background -->
+  <rect x="0" y="0" width="160" height="240" rx="8" fill="url(#coverGrad)" />
+  <!-- Spine Line -->
+  <rect x="0" y="0" width="14" height="240" rx="4" fill="url(#spineGrad)" opacity="0.8" />
+  <line x1="14" y1="0" x2="14" y2="240" stroke="#6366f1" stroke-width="1.5" opacity="0.4" />
+  
+  <!-- Decorative geometric border -->
+  <rect x="24" y="20" width="122" height="200" rx="4" fill="none" stroke="#818cf8" stroke-width="1" stroke-dasharray="4,3" opacity="0.4" />
+  
+  <!-- Center Book Icon -->
+  <circle cx="85" cy="100" r="28" fill="#4f46e5" opacity="0.5" />
+  <path d="M85 86 C79 83 72 84 69 87 L69 110 C72 107 79 106 85 109 Z" fill="#c7d2fe" />
+  <path d="M85 86 C91 83 98 84 101 87 L101 110 C98 107 91 106 85 109 Z" fill="#93c5fd" />
+  
+  <text x="85" y="150" font-family="system-ui, sans-serif" font-size="12" font-weight="600" fill="#e0e7ff" text-anchor="middle" letter-spacing="1">BOOK COVER</text>
+  <text x="85" y="170" font-family="system-ui, sans-serif" font-size="10" fill="#a5b4fc" text-anchor="middle">Preview Unavailable</text>
+</svg>

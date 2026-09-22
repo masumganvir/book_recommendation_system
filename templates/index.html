@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}BookVerse | Top 50 Most Popular Books{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-pill">
+    <span class="hero-pill-dot"></span>
+    <span>Community Gold Standard</span>
+  </div>
+  <h1 class="hero-title">
+    Explore the <span class="gradient-text">Top 50 Most Popular</span> Books
+  </h1>
+  <p class="hero-desc">
+    Curated using weighted community engagement. Every title meets a strict threshold of verified user ratings and highest average reader satisfaction scores.
+  </p>
+
+  <!-- Interactive Stats Counter -->
+  <div class="stats-strip">
+    <div class="stat-item">
+      <div class="stat-val">50</div>
+      <div class="stat-label">Featured Books</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">&ge; 250</div>
+      <div class="stat-label">Min Ratings Threshold</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">706</div>
+      <div class="stat-label">Collaborative Models</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-val">271K+</div>
+      <div class="stat-label">Global Catalog</div>
+    </div>
+  </div>
+</section>
+
+<!-- Filter & Search Toolbar -->
+<section class="toolbar">
+  <div class="search-box-wrapper">
+    <span class="search-icon-inside">&#128269;</span>
+    <input 
+      type="text" 
+      id="popularSearchInput" 
+      class="search-input" 
+      placeholder="Filter by book title or author..."
+      aria-label="Filter top books"
+    >
+  </div>
+
+  <div class="filter-controls">
+    <select id="popularSortSelect" class="filter-select" aria-label="Sort books">
+      <option value="default">Sort by: Default Rank</option>
+      <option value="rating-desc">Highest Rated &#9733;</option>
+      <option value="votes-desc">Most Reviews &#128483;</option>
+      <option value="title-asc">Title: A &rarr; Z</option>
+    </select>
+    <div id="popularCountDisplay" style="font-size:0.85rem; color:var(--text-muted); font-weight:600;">
+      Showing {{ books|length }} books
+    </div>
+  </div>
+</section>
+
+<!-- Popular Books Grid -->
+<section class="books-grid" id="popularBooksGrid">
+  {% for b in books %}
+  <article 
+    class="book-card" 
+    data-rank="{{ b.rank }}" 
+    data-title="{{ b.title }}" 
+    data-author="{{ b.author }}" 
+    data-rating="{{ b.rating }}" 
+    data-votes="{{ b.votes }}" 
+    data-image="{{ b.image }}"
+    tabindex="0"
+    role="button"
+    aria-label="View details for {{ b.title }}"
+  >
+    <div class="card-cover-wrapper">
+      <img 
+        class="card-cover-img" 
+        src="{{ b.image }}" 
+        alt="{{ b.title }} Cover" 
+        loading="lazy"
+        onerror="this.onerror=null; this.src='/static/images/book-placeholder.svg';"
+      >
+      <span class="card-rank-badge">#{{ b.rank }}</span>
+    </div>
+
+    <div class="card-body">
+      <div>
+        <h3 class="book-title" title="{{ b.title }}">{{ b.title }}</h3>
+        <p class="book-author">By {{ b.author }}</p>
+      </div>
+
+      <div class="card-metrics">
+        <span class="metric-rating" title="Average community rating">
+          &#9733; {{ b.rating }} <span style="font-size:0.75rem; color:var(--text-sub);">/ 10</span>
+        </span>
+        <span class="metric-votes" title="Total review votes">
+          {{ b.votes }} votes
+        </span>
+      </div>
+
+      <button 
+        class="card-action-btn" 
+        type="button" 
+        onclick="event.stopPropagation(); triggerExplore('{{ b.title|replace('\'', '\\\'') }}');"
+      >
+        <span>Get Recommendations</span> &rarr;
+      </button>
+    </div>
+  </article>
+  {% endfor %}
+</section>
+{% endblock %}

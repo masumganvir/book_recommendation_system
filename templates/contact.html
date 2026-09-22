@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}BookVerse | System Architecture & Algorithms{% endblock %}
+
+{% block content %}
+<section class="hero" style="padding-bottom:1.5rem;">
+  <div class="hero-pill">
+    <span class="hero-pill-dot"></span>
+    <span>System Architecture & Machine Learning</span>
+  </div>
+  <h1 class="hero-title">How <span class="gradient-text">BookVerse</span> Works</h1>
+  <p class="hero-desc">
+    Behind the interface lies a hybrid recommendation pipeline combining statistical popularity filtering with high-dimensional vector space cosine similarity.
+  </p>
+</section>
+
+<div style="max-width:960px; margin:0 auto; display:flex; flex-direction:column; gap:2rem;">
+  <!-- Section 1: Popularity Engine -->
+  <div class="stat-item" style="padding:2rem;">
+    <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+      <span style="font-size:1.8rem;">&#127942;</span>
+      <div>
+        <h2 style="font-size:1.4rem; font-weight:800; color:#ffffff;">1. Popularity-Based Filtering Engine</h2>
+        <span style="font-size:0.8rem; color:var(--accent-cyan); font-weight:600; text-transform:uppercase;">Global Ranking Formula</span>
+      </div>
+    </div>
+    <p style="color:var(--text-muted); line-height:1.7; margin-bottom:1rem;">
+      To solve the cold-start problem for new readers, we aggregate 1.1 million user ratings. A book is qualified only if it meets a strict threshold of at least <strong>250 individual community ratings</strong>. The filtered pool is then sorted by descending mean user rating score to surface the top 50 universally acclaimed literary works.
+    </p>
+    <div style="background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-sm); padding:1rem; font-family:'JetBrains Mono', monospace; font-size:0.88rem; color:#a5b4fc;">
+      popular_df = ratings_with_name.groupby('Book-Title').agg({'Book-Rating': ['count', 'mean']})<br>
+      qualified = popular_df[num_ratings &ge; 250].sort_values(by='avg_rating', ascending=False).head(50)
+    </div>
+  </div>
+
+  <!-- Section 2: Collaborative Filtering -->
+  <div class="stat-item" style="padding:2rem;">
+    <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+      <span style="font-size:1.8rem;">&#129504;</span>
+      <div>
+        <h2 style="font-size:1.4rem; font-weight:800; color:#ffffff;">2. Collaborative Filtering & Cosine Similarity</h2>
+        <span style="font-size:0.8rem; color:var(--accent-purple); font-weight:600; text-transform:uppercase;">High-Dimensional Vector Space</span>
+      </div>
+    </div>
+    <p style="color:var(--text-muted); line-height:1.7; margin-bottom:1rem;">
+      Our personalized recommender uses <strong>Item-Based Collaborative Filtering</strong>. We construct a sparse user-item interaction matrix pivoting <strong>706 qualified books</strong> against <strong>810 elite reviewers</strong> who have rated over 200 books each. We then compute pairwise <strong>Cosine Similarity</strong> angles in 810-dimensional space:
+    </p>
+    <div style="background:rgba(0,0,0,0.3); border:1px solid var(--border-glass); border-radius:var(--radius-sm); padding:1rem; font-family:'JetBrains Mono', monospace; font-size:0.88rem; color:#6ee7b7; margin-bottom:1rem;">
+      Cosine Similarity(u, v) = (u &bull; v) / (||u|| &times; ||v||)
+    </div>
+    <p style="color:var(--text-muted); line-height:1.7;">
+      When you query a book, the engine identifies the 5 nearest neighbor vectors with the smallest angular distance, returning books that passionate readers enjoyed alongside your chosen title.
+    </p>
+  </div>
+
+  <!-- Section 3: High Performance Cloud Architecture -->
+  <div class="stat-item" style="padding:2rem;">
+    <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+      <span style="font-size:1.8rem;">&#9889;</span>
+      <div>
+        <h2 style="font-size:1.4rem; font-weight:800; color:#ffffff;">3. Cloud Deployment on Render</h2>
+        <span style="font-size:0.8rem; color:var(--accent-amber); font-weight:600; text-transform:uppercase;">Production Optimization</span>
+      </div>
+    </div>
+    <ul style="color:var(--text-muted); line-height:1.8; list-style-position:inside;">
+      <li><strong>O(1) Dictionary Indexing:</strong> Catalog lookups are cached in memory for sub-millisecond API response times.</li>
+      <li><strong>Memory Conservation:</strong> Optimized single-worker threaded Gunicorn configuration to operate seamlessly within Render's free 512MB RAM tier without out-of-memory restarts.</li>
+      <li><strong>Dynamic REST Endpoints:</strong> Provides both JSON endpoints (<code>/api/recommend</code>, <code>/api/titles</code>) for dynamic JavaScript interaction and traditional form handling for search bots.</li>
+      <li><strong>Automatic HTTPS Upgrade:</strong> Replaces insecure HTTP image CDNs to guarantee zero mixed-content security blocks in modern web browsers.</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

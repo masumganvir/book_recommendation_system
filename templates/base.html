@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <title>{% block title %}BookVerse | Intelligent Book Recommender System{% endblock %}</title>
+  
+  <meta name="description" content="Discover your next favorite book with BookVerse — an AI-powered book recommendation engine driven by collaborative filtering and community popularity metrics.">
+  <meta name="theme-color" content="#0a0d14">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/favicon.svg') }}">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <!-- Glassmorphic Navigation -->
+  <nav class="navbar" id="mainNavbar">
+    <div class="nav-container">
+      <a href="{{ url_for('index') }}" class="brand" aria-label="BookVerse Home">
+        <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="BookVerse Logo" class="brand-icon">
+        <span class="brand-name">BookVerse</span>
+        <span class="brand-badge">AI Engine</span>
+      </a>
+
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle Navigation">&#9776;</button>
+
+      <ul class="nav-links" id="navLinks">
+        <li>
+          <a href="{{ url_for('index') }}" class="nav-link {% if active_page == 'home' %}active{% endif %}">
+            <span>&#128218; Top 50 Popular</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('recommend_ui') }}" class="nav-link nav-cta {% if active_page == 'recommend' %}active{% endif %}">
+            <span>&#10024; AI Recommender</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('about') }}" class="nav-link {% if active_page == 'about' %}active{% endif %}">
+            <span>&#9881; How It Works</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content Block -->
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Interactive Book Detail Modal -->
+  <div class="modal-overlay" id="bookDetailModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <button class="modal-close-btn" id="modalCloseBtn" aria-label="Close modal">&times;</button>
+      <img id="modalCover" class="modal-cover" src="{{ url_for('static', filename='images/book-placeholder.svg') }}" alt="Book Cover">
+      <div class="modal-info">
+        <h2 id="modalTitle" class="modal-title">Book Title</h2>
+        <div id="modalAuthor" class="modal-author">Author Name</div>
+        <div id="modalStats" class="modal-stats"></div>
+        <button id="modalActionBtn" class="modal-action-btn">
+          <span>&#128065; Get Similar Recommendations</span> &rarr;
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modern Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="brand" style="justify-content:center;">
+        <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="BookVerse Logo" style="width:30px; height:30px;">
+        <span class="brand-name">BookVerse</span>
+      </div>
+      <p class="footer-copy">
+        Crafted with Collaborative Filtering, Cosine Similarity Matrix & High-Performance Python.
+      </p>
+      <div class="footer-tech-stack">
+        <span class="tech-badge">Python 3</span>
+        <span class="tech-badge">Flask</span>
+        <span class="tech-badge">NumPy & Pandas</span>
+        <span class="tech-badge">Scikit-Learn Cosine Similarity</span>
+        <span class="tech-badge">Gunicorn / Render</span>
+        <span class="tech-badge">Vanilla CSS & JS</span>
+      </div>
+      <div style="font-size:0.75rem; color:var(--text-sub); margin-top:0.5rem;">
+        &copy; 2026 BookVerse Engine &bull; Ready for Cloud Deployment
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>
